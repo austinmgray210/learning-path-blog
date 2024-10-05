@@ -2,12 +2,14 @@ class BlogPostsController < ApplicationController
 	before_action :authenticate_user!, except: [:index, :show]
 	before_action :set_blog_post, except: [:index, :new, :create] #only: [:show, :edit, :update, :destroy]
 	
+	# rescue_from Pagy::OverflowError, with: :redirect_to_last_page
+	
 	def index
 		@blog_posts = user_signed_in? ? BlogPost.sorted : BlogPost.published.sorted
 		
 		@pagy, @blog_posts = pagy(@blog_posts)
-	rescue Pagy::OverflowError
-		redirect_to root_path(page: 1)
+	# rescue Pagy::OverflowError
+	# 	redirect_to root_path(page: 1)
 
 		# params[:page] = 1
 		# retry
@@ -56,4 +58,8 @@ class BlogPostsController < ApplicationController
 		rescue ActiveRecord::RecordNotFound
 			redirect_to root_path
 		end
+		
+		# def redirect_to_last_page(exception)
+		# 	redirect_to url_for(page: exception.pagy.last), notice: "Page ##{params[:page]} is overflowing. Showing page #{exception.pagy.last} instead."
+		# end
 end
